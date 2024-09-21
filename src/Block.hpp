@@ -1,17 +1,18 @@
 #pragma once
 #include "Object.hpp"
 #include "LightRay.hpp"
+#include "Config.hpp"
 
 class Dioptre
 {
+
+public:
     float x0;
     float y0;
     float x1;
     float y1;
     float a;
     float b;
-
-public:
     Dioptre(float x0, float y0, float x1, float y1){
         this->x0 = x0;
         this->y0 = y0;
@@ -34,9 +35,10 @@ private:
 public:
     inline static std::vector<Block*> blocks;
     Vector2 size;
+    float tilt;
     int index;
 
-    Block(Vector2 position, Vector2 size, int index);
+    Block(Vector2 position, Vector2 size, float tilt = 0, int index = 1);
     ~Block();
 
     void compute_dioptres();
