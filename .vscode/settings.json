@@ -64,6 +64,17 @@
     "typeinfo": "cpp",
     "variant": "cpp",
     "chrono": "cpp",
-    "semaphore": "cpp"
+    "semaphore": "cpp",
+    "condition_variable": "cpp",
+    "cstring": "cpp",
+    "list": "cpp",
+    "map": "cpp",
+    "ratio": "cpp",
+    "iomanip": "cpp",
+    "mutex": "cpp",
+    "sstream": "cpp",
+    "stdfloat": "cpp",
+    "stop_token": "cpp",
+    "thread": "cpp"
   },
 }

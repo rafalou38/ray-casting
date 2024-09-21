@@ -7,7 +7,6 @@
 #include "Light.hpp"
 #include "Block.hpp"
 
-
 int main(int argc, char *argv[])
 {
 
@@ -25,9 +24,9 @@ int main(int argc, char *argv[])
     width = GetRenderWidth();
     height = GetRenderHeight();
 
-    Light light = Light(Vector2{100, height / 2.0f}, RED, 2);
-    Block block = Block(Vector2{800, 400}, Vector2{750, 250}, PI/4);
-    Block block2 = Block(Vector2{1000, 600}, Vector2{750, 250});
+    Light light = Light(Vector2{100, height / 2.0f}, RED, 1000);
+    Block block = Block(Vector2{1500, 750}, Vector2{750, 250}, PI / 4);
+    // Block block2 = Block(Vector2{1000, 600}, Vector2{750, 250});
 
     while (!WindowShouldClose())
     {
@@ -37,8 +36,9 @@ int main(int argc, char *argv[])
             height = GetRenderHeight();
         }
 
-        if (GetMouseWheelMove() != 0){
-            light.ray_cnt *= 1 + GetMouseWheelMove()/2;
+        if (GetMouseWheelMove() != 0)
+        {
+            light.ray_cnt *= 1 + GetMouseWheelMove() / 2;
             light.ray_cnt = std::max((int)light.ray_cnt, 1);
         }
 
@@ -52,10 +52,14 @@ int main(int argc, char *argv[])
         light.update();
         light.draw();
 
-        block.tilt += 0.01f;
+        if (IsKeyDown(KEY_LEFT))
+            block.tilt += 0.02f;
+        else if (IsKeyDown(KEY_RIGHT))
+            block.tilt -= 0.02f;
+        
         block.compute_dioptres();
         block.draw();
-        block2.draw();
+        // block2.draw();
 
         EndDrawing();
     }

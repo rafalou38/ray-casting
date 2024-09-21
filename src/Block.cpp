@@ -36,21 +36,37 @@ void Block::draw()
 
 void Block::compute_dioptres()
 {
-    Vector2 p0 = Vector2Rotate({position.x, position.y}, tilt);
-    Vector2 p1 = Vector2Rotate({position.x + size.x, position.y}, tilt);
-    dioptres[0] = {p0.x, p0.y, p1.x, p1.y};
+    Vector2 p0 = Vector2Rotate({0, 0}, tilt);
+    Vector2 p1 = Vector2Rotate({size.x, 0}, tilt);
+    dioptres[0] = {
+        position.x + p0.x,
+        position.y + p0.y,
+        position.x + p1.x,
+        position.y + p1.y};
 
-    p0 = Vector2Rotate({position.x + size.x, position.y}, tilt);
-    p1 = Vector2Rotate({position.x + size.x, position.y + size.y}, tilt);
-    dioptres[1] = {p0.x, p0.y, p1.x, p1.y};
+    p0 = Vector2Rotate({size.x, 0}, tilt);
+    p1 = Vector2Rotate({size.x, size.y}, tilt);
+    dioptres[1] = {
+        position.x + p0.x,
+        position.y + p0.y,
+        position.x + p1.x,
+        position.y + p1.y};
 
-    p0 = Vector2Rotate({position.x + size.x, position.y + size.y}, tilt);
-    p1 = Vector2Rotate({position.x, position.y + size.y}, tilt);
-    dioptres[2] = {p1.x, p1.y, p0.x, p0.y};
+    p0 = Vector2Rotate({size.x, size.y}, tilt);
+    p1 = Vector2Rotate({0, size.y}, tilt);
+    dioptres[2] = {
+        position.x + p0.x,
+        position.y + p0.y,
+        position.x + p1.x,
+        position.y + p1.y};
 
-    p0 = Vector2Rotate({position.x, position.y + size.y}, tilt);
-    p1 = Vector2Rotate({position.x, position.y}, tilt);
-    dioptres[3] = {p1.x, p1.y, p0.x, p0.y};
+    p0 = Vector2Rotate({0, size.y}, tilt);
+    p1 = Vector2Rotate({0, 0}, tilt);
+    dioptres[3] = {
+        position.x + p0.x,
+        position.y + p0.y,
+        position.x + p1.x,
+        position.y + p1.y};
 }
 
 Vector2 Block::intersection(LightRay *ray)
@@ -90,24 +106,12 @@ Vector2 Dioptre::intersection(LightRay *ray)
     float x;
     float y;
 
-    if (a < 0)
-    {
-        float px0 = x0;
-        float py0 = y0;
-        float px1 = x1;
-        float py1 = y1;
-        x0 = px1;
-        y0 = py1;
-        x1 = px0;
-        y1 = py0;
-    }
-
     if (a == INFINITY)
     {
         // Cas dioptre horizontal
         x = x0;
         y = (x - ray->start_pos.x) * (sin(ray->start_angle) / cos(ray->start_angle)) + ray->start_pos.y;
-        if (y > y1 or y < y0)
+        if (y > std::max(y0, y1) or y < std::min(y0, y1))
         {
             return {0, 0};
         }
@@ -117,7 +121,7 @@ Vector2 Dioptre::intersection(LightRay *ray)
         // Cas rayon vertical
         x = ray->start_pos.x;
         y = a * (x - x0) + y0;
-        if (x > x1 or x < x0)
+        if (x > std::max(x0, x1) or x < std::min(x0, x1))
         {
             return {0, 0};
         }
@@ -130,7 +134,7 @@ Vector2 Dioptre::intersection(LightRay *ray)
 #if DEBUG
         DrawCircleV({x, y}, 3, BLUE);
 #endif
-        if (x > x1 or x < x0)
+        if (x > std::max(x0, x1) or x < std::min(x0, x1))
         {
             return {0, 0};
         }
