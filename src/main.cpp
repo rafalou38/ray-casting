@@ -4,6 +4,7 @@
 #include <string>
 
 #include "Light.hpp"
+#include "Block.hpp"
 
 
 int main(int argc, char *argv[])
@@ -23,7 +24,8 @@ int main(int argc, char *argv[])
     width = GetRenderWidth();
     height = GetRenderHeight();
 
-    Light light = Light(Vector2{width / 2.0f, height / 2.0f}, RED, 100);
+    Light light = Light(Vector2{100, height / 2.0f}, RED, 3);
+    Block block = Block(Vector2{800, 400}, Vector2{750, 250}, 0);
 
     while (!WindowShouldClose())
     {
@@ -47,6 +49,8 @@ int main(int argc, char *argv[])
 
         light.update();
         light.draw();
+
+        block.draw();
 
         EndDrawing();
     }
