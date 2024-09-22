@@ -14,7 +14,7 @@ public:
     Color color = RED;
     size_t ray_cnt;
 
-    std::vector<LightRay> rays;
+    std::vector<LightRay*> rays;
 
     Light(Vector2 position, Color color, int ray_cnt);
     ~Light();

@@ -23,10 +23,11 @@ int main(int argc, char *argv[])
 
     width = GetRenderWidth();
     height = GetRenderHeight();
+    LightRay::ray_cnt = 0;
 
-    Light light = Light(Vector2{100, height / 2.0f}, RED, 1000);
+    Light light = Light(Vector2{100, height / 2.0f}, RED, 1);
     Block block = Block(Vector2{1500, 750}, Vector2{750, 250}, PI / 4);
-    // Block block2 = Block(Vector2{1000, 600}, Vector2{750, 250});
+    Block block2 = Block(Vector2{1000, 600}, Vector2{750, 250});
 
     while (!WindowShouldClose())
     {
@@ -45,8 +46,13 @@ int main(int argc, char *argv[])
         BeginDrawing();
         ClearBackground(BLACK);
 
-        DrawText((std::to_string(GetFPS()) + " FPS" + "\n" + std::to_string(light.ray_cnt) + " rays").c_str(), 0, 0, 20, WHITE);
+        DrawText((std::to_string(GetFPS()) + " FPS" + "\n" + std::to_string(LightRay::ray_cnt) + " rays").c_str(), 0, 0, 20, WHITE);
 
+        for (Block *b : Block::blocks)
+        {
+            b->clearRays();
+        }
+        
         light.position = GetMousePosition();
 
         light.update();
@@ -59,7 +65,7 @@ int main(int argc, char *argv[])
         
         block.compute_dioptres();
         block.draw();
-        // block2.draw();
+        block2.draw();
 
         EndDrawing();
     }

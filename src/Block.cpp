@@ -27,10 +27,10 @@ void Block::draw()
         DrawCircleV({dioptre.x1, dioptre.y1}, 3, LIGHTGRAY);
     }
 #if DEBUG
-    DrawLineV({position.x, position.y}, {position.x + size.x, position.y}, BLUE);
-    DrawLineV({position.x + size.x, position.y}, {position.x + size.x, position.y + size.y}, BLUE);
-    DrawLineV({position.x + size.x, position.y + size.y}, {position.x, position.y + size.y}, BLUE);
-    DrawLineV({position.x, position.y + size.y}, {position.x, position.y}, BLUE);
+    // DrawLineV({position.x, position.y}, {position.x + size.x, position.y}, BLUE);
+    // DrawLineV({position.x + size.x, position.y}, {position.x + size.x, position.y + size.y}, BLUE);
+    // DrawLineV({position.x + size.x, position.y + size.y}, {position.x, position.y + size.y}, BLUE);
+    // DrawLineV({position.x, position.y + size.y}, {position.x, position.y}, BLUE);
 #endif
 }
 
@@ -69,21 +69,28 @@ void Block::compute_dioptres()
         position.y + p1.y};
 }
 
-Vector2 Block::intersection(LightRay *ray)
+Intersection Block::intersection(LightRay *ray)
 {
     // printf("Intersecting block %d\n", index);
-    Vector2 inter = {0, 0};
+    Intersection inter = {{0, 0}, NULL, INFINITY, 0};
     float inter_dist = INFINITY;
     compute_dioptres();
     for (size_t i = 0; i < dioptres.size(); i++)
     {
         Dioptre dioptre = dioptres[i];
-        Vector2 inter2 = dioptre.intersection(ray);
-        if (inter2.x == 0 && inter2.y == 0)
+
+        printf("%ld %ld\n", dioptre.id, ray->origin_dioptre_id);
+
+        if (dioptre.id == ray->origin_dioptre_id)
             continue;
+        Intersection inter2 = dioptre.intersection(ray);
+        if (inter2.point.x == 0 && inter2.point.y == 0)
+            continue;
+        float d2 = Vector2DistanceSqr(ray->start_pos, inter2.point);
 
-        float d2 = Vector2DistanceSqr(ray->start_pos, inter2);
-
+#if DEBUG
+        DrawCircleV(inter2.point, 4, PURPLE);
+#endif
         if (d2 < inter_dist)
         {
             inter = inter2;
@@ -92,28 +99,28 @@ Vector2 Block::intersection(LightRay *ray)
     }
 
 #if DEBUG
-    DrawCircleV(inter, 5, GREEN);
+    DrawCircleV(inter.point, 5, GREEN);
 #endif
 
     return inter;
 }
 
-Vector2 Dioptre::intersection(LightRay *ray)
+Intersection Dioptre::intersection(LightRay *ray)
 {
     sync();
-    // printf("Intersecting dioptre %f, %f, %f, %f, a=%f\n", x0, y0, x1, y1, a);
+    Intersection no_inter = Intersection{{0, 0}, NULL, 0, 0};
 
     float x;
     float y;
 
-    if (a == INFINITY)
+    if (abs(a) == INFINITY)
     {
         // Cas dioptre horizontal
         x = x0;
         y = (x - ray->start_pos.x) * (sin(ray->start_angle) / cos(ray->start_angle)) + ray->start_pos.y;
         if (y > std::max(y0, y1) or y < std::min(y0, y1))
         {
-            return {0, 0};
+            return no_inter;
         }
     }
     else if (abs(cos(ray->start_angle)) <= 0.0000001f)
@@ -123,7 +130,7 @@ Vector2 Dioptre::intersection(LightRay *ray)
         y = a * (x - x0) + y0;
         if (x > std::max(x0, x1) or x < std::min(x0, x1))
         {
-            return {0, 0};
+            return no_inter;
         }
     }
     else
@@ -136,9 +143,12 @@ Vector2 Dioptre::intersection(LightRay *ray)
 #endif
         if (x > std::max(x0, x1) or x < std::min(x0, x1))
         {
-            return {0, 0};
+            return no_inter;
         }
     }
+#if DEBUG
+    DrawCircleV({x, y}, 3, YELLOW);
+#endif
 
     // Check direction
     if (
@@ -148,11 +158,25 @@ Vector2 Dioptre::intersection(LightRay *ray)
         or (cos(ray->start_angle) < 0 and x > ray->start_pos.x) //
     )
     {
-        return {0, 0};
+        return no_inter;
     }
-#if DEBUG
-    DrawCircleV({x, y}, 3, YELLOW);
-#endif
 
-    return {x, y};
+    return Intersection{{x, y}, this, Vector2DistanceSqr({x, y}, ray->end_pos), 0};
+}
+
+void Block::clearRays()
+{
+    for (auto ray : outRays)
+    {
+        delete ray;
+    }
+    outRays.clear();
+}
+
+void Block::RegisterNewRay(LightRay *inRay, Intersection inter)
+{
+    auto ray = new LightRay(inRay->start_pos, inRay->start_angle, inRay->iteration + 1, inter.dioptre->id);
+    ray->update();
+    // printf("Registered ray: %f %f %f %f\n", ray->start_pos.x, ray->start_pos.y, ray->start_angle, ray->iteration);
+    outRays.push_back(ray);
 }

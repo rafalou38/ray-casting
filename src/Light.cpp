@@ -17,9 +17,9 @@ Light::~Light()
 
 void Light::draw()
 {
-    for (auto &ray : rays)
+    for (auto ray : rays)
     {
-        ray.draw();
+        ray->draw();
     }
 
     DrawLineV(Vector2Add(position, Vector2{-PT_SIZE, 0}), Vector2Add(position, Vector2{PT_SIZE, 0}), WHITE);
@@ -30,17 +30,22 @@ void Light::update()
 {
     if (rays.size() != ray_cnt)
     {
+        for (auto ray : rays)
+        {
+            delete ray;
+        }
         rays.clear();
+
         for (size_t i = 0; i < ray_cnt; i++)
         {
-            rays.push_back(LightRay(position, 2 * M_PI * i / ray_cnt));
+            rays.push_back(new LightRay(position, 2 * M_PI * i / ray_cnt, 0, 0));
         }
     }
 
 
-    for (auto &ray : rays)
+    for (auto ray : rays)
     {
-        ray.start_pos = position;
-        ray.update();
+        ray->start_pos = position;
+        ray->update();
     }
 }
