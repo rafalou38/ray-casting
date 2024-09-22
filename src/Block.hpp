@@ -54,7 +54,7 @@ public:
 
     void clearRays();
 
-    void RegisterNewRay(LightRay *inRay, Intersection inter);
+    void RegisterNewRay(LightRay *inRay, Intersection &inter);
 
     void draw();
 };

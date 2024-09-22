@@ -4,7 +4,7 @@
 #include "LightRay.hpp"
 #include "Block.hpp"
 
-LightRay::LightRay(Vector2 start_pos, float angle, int iteration, size_t origin_dioptre_id)
+LightRay::LightRay(Vector2 start_pos, float angle, int iteration, long origin_dioptre_id)
 {
     this->start_pos = start_pos;
     this->start_angle = angle;
@@ -20,12 +20,12 @@ LightRay::~LightRay()
 
 void LightRay::draw()
 {
-    DrawLineEx(start_pos, end_pos, 1, ColorAlpha(RED, 1.0/std::min(this->iteration, 1.0f)));
+    DrawLineEx(start_pos, end_pos, 1, ColorAlpha(RED, 1.0 / std::max(this->iteration / 1.5f, 1.0f)));
 }
 
 void LightRay::update()
 {
-    Intersection inter = {{0,0}, NULL, INFINITY, 0 };
+    Intersection inter = {{0, 0}, NULL, INFINITY, 0};
     float d = INFINITY;
     Block *inter_block = nullptr;
     for (size_t i = 0; i < Block::blocks.size(); i++)
@@ -34,12 +34,6 @@ void LightRay::update()
         Intersection inter2 = block->intersection(this);
         if (inter2.point.x == 0 && inter2.point.y == 0)
             continue;
-
-        if (iteration > 0)
-        {
-            DrawCircleV(inter2.point, 10, BROWN);
-        }
-        
 
         float d2 = Vector2DistanceSqr(inter2.point, this->start_pos);
 
@@ -55,7 +49,13 @@ void LightRay::update()
         this->end_pos.x = inter.point.x;
         this->end_pos.y = inter.point.y;
 
-        if(this->iteration < 2) inter_block->RegisterNewRay(this, inter);
+#if DEBUG
+        printf("Ray intersects from %ld to %ld dir: %f\n", this->origin_dioptre_id, inter.dioptre->id, this->start_angle);
+        DrawText(std::to_string((int)iteration).c_str(), this->end_pos.x, this->end_pos.y, 20, WHITE);
+#endif
+
+        if (this->iteration < 10)
+            inter_block->RegisterNewRay(this, inter);
     }
     else
     {
@@ -67,6 +67,4 @@ void LightRay::update()
         this->end_pos.y = this->start_pos.y + sin(this->start_angle) * 250;
 #endif
     }
-
-    // DrawText(("Angle: " + std::to_string(this->start_angle * 180 / PI) + "° sin: " + std::to_string(sin(this->start_angle))).c_str() , this->start_pos.x + cos(this->start_angle) * 100, this->start_pos.y + sin(this->start_angle) * 100, 16, WHITE);
 }

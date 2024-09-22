@@ -9,7 +9,6 @@ class Dioptre;
 struct Intersection
 {
     Vector2 point;
-
     Dioptre *dioptre;
     float distance;
     float angle;
@@ -29,7 +28,7 @@ public:
     long origin_dioptre_id;
 
 
-    LightRay(Vector2 start_pos, float angle, int iteration = 0, size_t origin_dioptre_index = -1);
+    LightRay(Vector2 start_pos, float angle, int iteration = 0, long origin_dioptre_index = -1);
     ~LightRay();
 
     void update();
