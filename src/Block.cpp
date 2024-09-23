@@ -155,29 +155,26 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
         inter.dioptre->x0 - inter.point.x,
         inter.dioptre->y0 - inter.point.y,
     });
-    if (inter.dioptre->x1 > inter.dioptre->x0){
-        u.x = inter.dioptre->x1 - inter.point.x;
-        u.y = inter.dioptre->y1 - inter.point.y;
-    }
-
+    // if (inter.dioptre->x1 > inter.dioptre->x0)
+    // {
+    //     u.x = inter.dioptre->x1 - inter.point.x;
+    //     u.y = inter.dioptre->y1 - inter.point.y;
+    // }
 
     Vector2 v = Vector2(
         {
             inRay->start_pos.x - inter.point.x,
             inRay->start_pos.y - inter.point.y,
         });
-    DrawLineV(inter.point, Vector2Add(inter.point, u), PURPLE);
-    DrawLineV(inter.point, Vector2Add(inter.point, v), PURPLE);
 
-        
-    float alpha = abs(Vector2Angle(u, v));
-    if (alpha < PI/2){
-        alpha = PI/2 - alpha;
-    }else{
-        alpha = alpha - PI/2;
+    Vector2 n = Vector2Rotate(u, PI / 2);
+
+    // DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 150)), YELLOW);
+    DrawText(std::to_string((int)round((Vector2Angle(n, v) * 180 / PI))).c_str(), inter.point.x, inter.point.y, 20, WHITE);
+    if (Vector2Angle(n, v) < -PI/2 or Vector2Angle(n, v) > PI / 2){
+        n = Vector2Scale(n, -1);
     }
-    DrawCircleSector(inter.point, 100, Vector2Angle({1,0}, v), alpha* 180 / PI, 100, PURPLE);
-    DrawText(std::to_string((int)round((alpha * 180 / PI))).c_str(), inter.point.x, inter.point.y, 20, WHITE);
+    DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 100)), PURPLE);
 
     long oid = inter.dioptre->id;
     auto ray = new LightRay(inter.point, inRay->start_angle, inRay->iteration + 1, oid);
