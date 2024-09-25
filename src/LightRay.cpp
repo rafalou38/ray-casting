@@ -4,12 +4,14 @@
 #include "LightRay.hpp"
 #include "Block.hpp"
 
-LightRay::LightRay(Vector2 start_pos, float angle, int iteration, long origin_dioptre_id)
+LightRay::LightRay(Vector2 start_pos, float angle, int iteration, long origin_dioptre_id, float origin_index)
 {
+    printf("%f %f \n", start_pos.x, start_pos.y);
     this->start_pos = start_pos;
     this->start_angle = angle;
     this->iteration = iteration;
     this->origin_dioptre_id = origin_dioptre_id;
+    this->origin_index = origin_index;
     LightRay::ray_cnt++;
 }
 
@@ -63,8 +65,8 @@ void LightRay::update()
         this->end_pos.x = this->start_pos.x + cos(this->start_angle) * 10000;
         this->end_pos.y = this->start_pos.y + sin(this->start_angle) * 10000;
 #else
-        this->end_pos.x = this->start_pos.x + cos(this->start_angle) * 250;
-        this->end_pos.y = this->start_pos.y + sin(this->start_angle) * 250;
+        this->end_pos.x = this->start_pos.x + cos(this->start_angle) * 10000;
+        this->end_pos.y = this->start_pos.y + sin(this->start_angle) * 10000;
 #endif
     }
 }

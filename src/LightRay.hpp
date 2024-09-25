@@ -26,9 +26,10 @@ public:
 
     float iteration;
     long origin_dioptre_id;
+    float origin_index;
 
 
-    LightRay(Vector2 start_pos, float angle, int iteration = 0, long origin_dioptre_index = -1);
+    LightRay(Vector2 start_pos, float angle, int iteration = 0, long origin_dioptre_index = -1, float origin_index = 1);
     ~LightRay();
 
     void update();

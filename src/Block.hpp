@@ -17,13 +17,15 @@ public:
     float y1;
     float a;
     float b;
-    Dioptre(float x0, float y0, float x1, float y1)
+    float index;
+    Dioptre(float x0, float y0, float x1, float y1, float index)
     {
         this->id = random();
         this->x0 = x0;
         this->y0 = y0;
         this->x1 = x1;
         this->y1 = y1;
+        this->index = index;
         sync();
     }
     void sync()
@@ -44,9 +46,9 @@ public:
     std::vector<LightRay *> outRays;
     Vector2 size;
     float tilt;
-    int index;
+    float index;
 
-    Block(Vector2 position, Vector2 size, float tilt = 0, int index = 1);
+    Block(Vector2 position, Vector2 size, float tilt = 0, float index = 1);
     ~Block();
 
     void compute_dioptres();

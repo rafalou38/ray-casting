@@ -38,14 +38,16 @@ void Light::update()
 
         for (size_t i = 0; i < ray_cnt; i++)
         {
-            rays.push_back(new LightRay(position, 2 * M_PI * i / ray_cnt, 0, 0));
+            rays.push_back(new LightRay(position, PI/2, 0, 0));
+            // rays.push_back(new LightRay(position, 2 * M_PI * i / ray_cnt, 0, 0));
         }
     }
 
 
-    for (auto ray : rays)
+    for (size_t i = 0; i < ray_cnt; i++)
     {
-        ray->start_pos = position;
+        auto ray = rays[i];
+        ray->start_pos = {position.x + i* 4, position.y};
         ray->update();
     }
 }

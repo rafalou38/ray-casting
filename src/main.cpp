@@ -25,9 +25,9 @@ int main(int argc, char *argv[])
     height = GetRenderHeight();
     LightRay::ray_cnt = 0;
 
-    Light light = Light(Vector2{100, height / 2.0f}, RED, 2);
-    Block block = Block(Vector2{1500, 750}, Vector2{750, 250}, PI / 4);
-    Block block2 = Block(Vector2{1000, 600}, Vector2{750, 250});
+    Light light = Light(Vector2{100, height / 2.0f}, RED, 5);
+    Block block = Block(Vector2{1500, 750}, Vector2{750, 250}, PI / 4, 1.3);
+    Block block2 = Block(Vector2{1000, 600}, Vector2{3000, 250}, 0, 1.3);
 
     while (!WindowShouldClose())
     {

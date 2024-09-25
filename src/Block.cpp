@@ -1,6 +1,6 @@
 #include "Block.hpp"
 
-Block::Block(Vector2 position, Vector2 size, float tilt, int index)
+Block::Block(Vector2 position, Vector2 size, float tilt, float index)
 {
     this->position = position;
     this->size = size;
@@ -9,7 +9,7 @@ Block::Block(Vector2 position, Vector2 size, float tilt, int index)
     this->tilt = tilt;
 
     Block::blocks.push_back(this);
-    dioptres.resize(4, {0, 0, 0, 0});
+    dioptres.resize(4, {0, 0, 0, 0, index});
 
     compute_dioptres();
 }
@@ -39,36 +39,40 @@ void Block::draw()
 void Block::compute_dioptres()
 {
     Vector2 p0 = Vector2Rotate({0, 0}, tilt);
-    Vector2 p1 = Vector2Rotate({size.x, 0}, tilt);
+    Vector2 p1 = Vector2Rotate({size.x, 0}, tilt); // TOP
     dioptres[0] = {
         position.x + p0.x,
         position.y + p0.y,
         position.x + p1.x,
-        position.y + p1.y};
+        position.y + p1.y,
+        this->index};
 
     p0 = Vector2Rotate({size.x, 0}, tilt);
-    p1 = Vector2Rotate({size.x, size.y}, tilt);
+    p1 = Vector2Rotate({size.x, size.y}, tilt); // Right
     dioptres[1] = {
         position.x + p0.x,
         position.y + p0.y,
         position.x + p1.x,
-        position.y + p1.y};
+        position.y + p1.y,
+        this->index};
 
     p0 = Vector2Rotate({size.x, size.y}, tilt);
-    p1 = Vector2Rotate({0, size.y}, tilt);
+    p1 = Vector2Rotate({0, size.y}, tilt); // bottom
     dioptres[2] = {
         position.x + p0.x,
         position.y + p0.y,
         position.x + p1.x,
-        position.y + p1.y};
+        position.y + p1.y,
+        this->index};
 
     p0 = Vector2Rotate({0, size.y}, tilt);
-    p1 = Vector2Rotate({0, 0}, tilt);
+    p1 = Vector2Rotate({0, 0}, tilt); // Left
     dioptres[3] = {
         position.x + p0.x,
         position.y + p0.y,
         position.x + p1.x,
-        position.y + p1.y};
+        position.y + p1.y,
+        this->index};
 }
 
 Intersection Block::intersection(LightRay *ray)
@@ -151,7 +155,7 @@ void Block::clearRays()
 void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
 {
 
-    Vector2 u = Vector2({
+    Vector2 OJ = Vector2({
         inter.dioptre->x0 - inter.point.x,
         inter.dioptre->y0 - inter.point.y,
     });
@@ -161,23 +165,43 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
     //     u.y = inter.dioptre->y1 - inter.point.y;
     // }
 
-    Vector2 v = Vector2(
+    Vector2 OL = Vector2(
         {
             inRay->start_pos.x - inter.point.x,
             inRay->start_pos.y - inter.point.y,
         });
 
-    Vector2 n = Vector2Rotate(u, PI / 2);
+    Vector2 n = Vector2Rotate(OJ, PI / 2);
 
     // DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 150)), YELLOW);
-    DrawText(std::to_string((int)round((Vector2Angle(n, v) * 180 / PI))).c_str(), inter.point.x, inter.point.y, 20, WHITE);
-    if (Vector2Angle(n, v) < -PI/2 or Vector2Angle(n, v) > PI / 2){
+    // DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 100)), YELLOW);
+    bool leaving = Vector2Angle(n, OL) < -PI / 2 or Vector2Angle(n, OL) > PI / 2;
+    if (leaving)
         n = Vector2Scale(n, -1);
+
+    // DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 100)), PURPLE);
+
+    float i1 = Vector2Angle(n, OL);
+    float i2;
+    if (leaving)
+    {
+        i2 = asin(sin(i1) * (1 / inRay->origin_index));
     }
-    DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 100)), PURPLE);
+    else
+    {
+        i2 = asin(sin(i1) * (index / inRay->origin_index));
+    }
+
+    // printf("%f %f %f %f \n", i1, inRay->origin_index, i2, index);
+
+    // DrawText(std::to_string((int)round((i1 * 180 / PI))).c_str(), inter.point.x, inter.point.y, 20, WHITE);
+    // DrawText(std::to_string((int)round((i2 * 180 / PI))).c_str(), inter.point.x + 30, inter.point.y + 30, 20, WHITE);
+
+    Vector2 dir = Vector2Rotate(Vector2Scale(n, -1), i2);
+    // DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(), 100)), YELLOW);
 
     long oid = inter.dioptre->id;
-    auto ray = new LightRay(inter.point, inRay->start_angle, inRay->iteration + 1, oid);
+    auto ray = new LightRay(inter.point, Vector2Angle({1, 0}, dir), inRay->iteration + 1, oid, this->index);
 
     ray->update();
     ray->draw();
