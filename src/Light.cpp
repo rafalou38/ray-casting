@@ -47,7 +47,7 @@ void Light::update()
     for (size_t i = 0; i < ray_cnt; i++)
     {
         auto ray = rays[i];
-        ray->start_pos = {position.x + i* 4, position.y};
+        ray->start_pos = {position.x + i* 2, position.y};
         ray->update();
     }
 }

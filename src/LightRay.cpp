@@ -6,7 +6,7 @@
 
 LightRay::LightRay(Vector2 start_pos, float angle, int iteration, long origin_dioptre_id, float origin_index)
 {
-    printf("%f %f \n", start_pos.x, start_pos.y);
+    // printf("%f %f \n", start_pos.x, start_pos.y);
     this->start_pos = start_pos;
     this->start_angle = angle;
     this->iteration = iteration;
@@ -46,6 +46,10 @@ void LightRay::update()
             inter_block = block;
         }
     }
+    // printf("%f %f\n", inter.point.x, inter.point.y);
+    #if DEBUG
+    DrawCircle(inter.point.x, inter.point.y, 10, PURPLE);
+    #endif
     if (inter.point.x != 0 && inter.point.y != 0)
     {
         this->end_pos.x = inter.point.x;
@@ -56,7 +60,7 @@ void LightRay::update()
         DrawText(std::to_string((int)iteration).c_str(), this->end_pos.x, this->end_pos.y, 20, WHITE);
 #endif
 
-        if (this->iteration < 10)
+        if (this->iteration < 4)
             inter_block->RegisterNewRay(this, inter);
     }
     else

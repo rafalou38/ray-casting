@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
 
     while (!WindowShouldClose())
     {
+        printf("new iter\n");
         if (IsWindowResized())
         {
             width = GetRenderWidth();

@@ -9,7 +9,12 @@ Block::Block(Vector2 position, Vector2 size, float tilt, float index)
     this->tilt = tilt;
 
     Block::blocks.push_back(this);
-    dioptres.resize(4, {0, 0, 0, 0, index});
+    // dioptres.resize(4, {0, 0, 0, 0, index});
+
+    for (size_t i = 0; i < 4; i++)
+    {
+        dioptres.push_back(Dioptre(0, 0, 0, 0, 0));
+    }
 
     compute_dioptres();
 }
@@ -40,39 +45,36 @@ void Block::compute_dioptres()
 {
     Vector2 p0 = Vector2Rotate({0, 0}, tilt);
     Vector2 p1 = Vector2Rotate({size.x, 0}, tilt); // TOP
-    dioptres[0] = {
-        position.x + p0.x,
-        position.y + p0.y,
-        position.x + p1.x,
-        position.y + p1.y,
-        this->index};
+
+    dioptres[0].x0 = position.x + p0.x;
+    dioptres[0].y0 = position.y + p0.y;
+    dioptres[0].x1 = position.x + p1.x;
+    dioptres[0].y1 = position.y + p1.y;
+    dioptres[0].index = this->index;
 
     p0 = Vector2Rotate({size.x, 0}, tilt);
     p1 = Vector2Rotate({size.x, size.y}, tilt); // Right
-    dioptres[1] = {
-        position.x + p0.x,
-        position.y + p0.y,
-        position.x + p1.x,
-        position.y + p1.y,
-        this->index};
+    dioptres[1].x0 = position.x + p0.x;
+    dioptres[1].y0 = position.y + p0.y;
+    dioptres[1].x1 = position.x + p1.x;
+    dioptres[1].y1 = position.y + p1.y;
+    dioptres[1].index = this->index;
 
     p0 = Vector2Rotate({size.x, size.y}, tilt);
     p1 = Vector2Rotate({0, size.y}, tilt); // bottom
-    dioptres[2] = {
-        position.x + p0.x,
-        position.y + p0.y,
-        position.x + p1.x,
-        position.y + p1.y,
-        this->index};
+    dioptres[2].x0 = position.x + p0.x;
+    dioptres[2].y0 = position.y + p0.y;
+    dioptres[2].x1 = position.x + p1.x;
+    dioptres[2].y1 = position.y + p1.y;
+    dioptres[2].index = this->index;
 
     p0 = Vector2Rotate({0, size.y}, tilt);
     p1 = Vector2Rotate({0, 0}, tilt); // Left
-    dioptres[3] = {
-        position.x + p0.x,
-        position.y + p0.y,
-        position.x + p1.x,
-        position.y + p1.y,
-        this->index};
+    dioptres[3].x0 = position.x + p0.x;
+    dioptres[3].y0 = position.y + p0.y;
+    dioptres[3].x1 = position.x + p1.x;
+    dioptres[3].y1 = position.y + p1.y;
+    dioptres[3].index = this->index;
 }
 
 Intersection Block::intersection(LightRay *ray)
@@ -88,8 +90,17 @@ Intersection Block::intersection(LightRay *ray)
         if (dioptres[i].id == ray->origin_dioptre_id)
             continue;
 
-        if (inter2.distance < inter.distance)
+#if DEBUG
+        if (ray->iteration == 2)
+            DrawCircleLines(inter2.point.x, inter2.point.y, 20, GREEN);
+#endif
+        if (inter2.distance - inter.distance < 1)
+        {
+#if DEBUG
+            DrawCircle(inter2.point.x, inter2.point.y, 10, YELLOW);
+#endif
             inter = inter2;
+        }
     }
 
     return inter;
@@ -108,6 +119,9 @@ Intersection Dioptre::intersection(LightRay *ray)
         // Cas dioptre horizontal
         x = x0;
         y = (x - ray->start_pos.x) * (sin(ray->start_angle) / cos(ray->start_angle)) + ray->start_pos.y;
+        // #if DEBUG
+        //         DrawCircle(x, y, 5, BLUE);
+        // #endif
         if (y > std::max(y0, y1) or y < std::min(y0, y1))
             return no_inter;
     }
@@ -116,6 +130,9 @@ Intersection Dioptre::intersection(LightRay *ray)
         // Cas rayon vertical
         x = ray->start_pos.x;
         y = a * (x - x0) + y0;
+        // #if DEBUG
+        //         DrawCircle(x, y, 5, BLUE);
+        // #endif
         if (x > std::max(x0, x1) or x < std::min(x0, x1))
             return no_inter;
     }
@@ -123,6 +140,17 @@ Intersection Dioptre::intersection(LightRay *ray)
     {
         x = (cos(ray->start_angle) * (-ray->start_pos.y - (a)*x0 + y0) + ray->start_pos.x * sin(ray->start_angle)) / (sin(ray->start_angle) - a * cos(ray->start_angle));
         y = (x - ray->start_pos.x) * (sin(ray->start_angle) / cos(ray->start_angle)) + ray->start_pos.y;
+
+#if DEBUG
+        if (ray->iteration >= 2)
+        {
+            // printf("=> %f %f\n", sin(ray->start_angle) - a * cos(ray->start_angle), (-ray->start_pos.y - (a)*x0 + y0) + ray->start_pos.x * sin(ray->start_angle));
+            printf("=> %f %f\n", sin(ray->start_angle), a * cos(ray->start_angle));
+            DrawLine(x, 0, x, 10000, PURPLE);
+            DrawLine(0, y, 10000, y, PURPLE);
+        }
+        // DrawCircle(x, y, 5, BLUE);
+#endif
 
         if (x > std::max(x0, x1) or x < std::min(x0, x1))
             return no_inter;
@@ -137,9 +165,21 @@ Intersection Dioptre::intersection(LightRay *ray)
     )
         return no_inter;
 
+        // #if DEBUG
+        //     DrawCircle(x, y, 5, GREEN);
+        // #endif
+#if DEBUG
+    if (ray->iteration == 2)
+        DrawCircleLines(x, y, 15, RED);
+#endif
+
     if (abs(x) == INFINITY or abs(y) == INFINITY or abs(x) == NAN or abs(y) == NAN)
         return no_inter;
 
+#if DEBUG
+    if (ray->iteration == 2)
+        DrawCircleLines(x, y, 20, BLUE);
+#endif
     // TODO: Check angle
     return Intersection{{x, y}, this, Vector2DistanceSqr(ray->start_pos, {x, y}), 0};
 }
@@ -173,14 +213,17 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
 
     Vector2 n = Vector2Rotate(OJ, PI / 2);
 
-    // DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 150)), YELLOW);
-    // DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 100)), YELLOW);
+#if DEBUG
+    DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 150)), YELLOW);
+    DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 100)), YELLOW);
+#endif
     bool leaving = Vector2Angle(n, OL) < -PI / 2 or Vector2Angle(n, OL) > PI / 2;
     if (leaving)
         n = Vector2Scale(n, -1);
 
-    // DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 100)), PURPLE);
-
+#if DEBUG
+    DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 100)), PURPLE);
+#endif
     float i1 = Vector2Angle(n, OL);
     float i2;
     if (leaving)
@@ -192,11 +235,15 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
         i2 = asin(sin(i1) * (index / inRay->origin_index));
     }
 
+#if DEBUG
+    printf("%f \n", i2 * 180 / PI);
+
     // printf("%f %f %f %f \n", i1, inRay->origin_index, i2, index);
 
-    // DrawText(std::to_string((int)round((i1 * 180 / PI))).c_str(), inter.point.x, inter.point.y, 20, WHITE);
-    // DrawText(std::to_string((int)round((i2 * 180 / PI))).c_str(), inter.point.x + 30, inter.point.y + 30, 20, WHITE);
+    DrawText(std::to_string((i1 * 180 / PI)).c_str(), inter.point.x, inter.point.y, 20, WHITE);
+    DrawText(std::to_string((i2 * 180 / PI)).c_str(), inter.point.x, inter.point.y + 40, 20, WHITE);
 
+#endif
     Vector2 dir = Vector2Rotate(Vector2Scale(n, -1), i2);
     // DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(), 100)), YELLOW);
 
