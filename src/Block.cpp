@@ -29,16 +29,16 @@ void Block::draw()
     {
         DrawLineV({dioptre.x0, dioptre.y0}, {dioptre.x1, dioptre.y1}, WHITE);
 #if DEBUG
-        DrawText(std::to_string(dioptre.id).c_str(), dioptre.x0, dioptre.y0, 20, WHITE);
+        DrawText(std::to_string(dioptre.id).c_str(), (dioptre.x0 + dioptre.x1) / 2, (dioptre.y0 + dioptre.y1) / 2, 20, WHITE);
         DrawCircleV({dioptre.x1, dioptre.y1}, 3, LIGHTGRAY);
 #endif
     }
-#if DEBUG
-    DrawLineV({position.x, position.y}, {position.x + size.x, position.y}, BLUE);
-    DrawLineV({position.x + size.x, position.y}, {position.x + size.x, position.y + size.y}, BLUE);
-    DrawLineV({position.x + size.x, position.y + size.y}, {position.x, position.y + size.y}, BLUE);
-    DrawLineV({position.x, position.y + size.y}, {position.x, position.y}, BLUE);
-#endif
+    // #if DEBUG
+    //     DrawLineV({position.x, position.y}, {position.x + size.x, position.y}, BLUE);
+    //     DrawLineV({position.x + size.x, position.y}, {position.x + size.x, position.y + size.y}, BLUE);
+    //     DrawLineV({position.x + size.x, position.y + size.y}, {position.x, position.y + size.y}, BLUE);
+    //     DrawLineV({position.x, position.y + size.y}, {position.x, position.y}, BLUE);
+    // #endif
 }
 
 void Block::compute_dioptres()
@@ -80,27 +80,41 @@ void Block::compute_dioptres()
 Intersection Block::intersection(LightRay *ray)
 {
     Intersection inter = {{0, 0}, NULL, INFINITY, 0};
+    float d = INFINITY;
+
+    printf("\tintersection %f with block %f %f \n", ray->iteration, this->position.x, this->position.y);
 
     for (size_t i = 0; i < dioptres.size(); i++)
     {
-        Intersection inter2 = dioptres[i].intersection(ray);
-        if (inter2.point.x == 0 && inter2.point.y == 0)
-            continue;
-
         if (dioptres[i].id == ray->origin_dioptre_id)
             continue;
 
-#if DEBUG
-        if (ray->iteration == 2)
-            DrawCircleLines(inter2.point.x, inter2.point.y, 20, GREEN);
-#endif
-        if (inter2.distance - inter.distance < 1)
+        Intersection inter2 = dioptres[i].intersection(ray);
+        if (ray->iteration == 42)
+            DrawCircleV(inter2.point, 6, BLUE);
+        if (inter2.dioptre == NULL)
+            continue;
+
+        float d2 = Vector2DistanceSqr(inter2.point, ray->start_pos);
+        if (ray->iteration == 42)
+            DrawCircleV(inter2.point, 6, YELLOW);
+
+        printf("\t\t new candidate: %ld\n", dioptres[i].id);
+
+        if (d2 < d)
         {
-#if DEBUG
-            DrawCircle(inter2.point.x, inter2.point.y, 10, YELLOW);
-#endif
+            if (ray->iteration == 42)
+                DrawCircleV(inter2.point, 6, RED);
             inter = inter2;
+            d = d2;
         }
+    }
+
+    if (d != INFINITY)
+    {
+        if (ray->iteration == 42)
+            DrawCircleV(inter.point, 10, GREEN);
+        printf("\t\t-> saved: %ld\n", inter.dioptre->id);
     }
 
     return inter;
@@ -119,9 +133,8 @@ Intersection Dioptre::intersection(LightRay *ray)
         // Cas dioptre horizontal
         x = x0;
         y = (x - ray->start_pos.x) * (sin(ray->start_angle) / cos(ray->start_angle)) + ray->start_pos.y;
-        // #if DEBUG
-        //         DrawCircle(x, y, 5, BLUE);
-        // #endif
+        if (ray->iteration == 3)
+            DrawCircle(x, y, 5, BLUE);
         if (y > std::max(y0, y1) or y < std::min(y0, y1))
             return no_inter;
     }
@@ -130,9 +143,8 @@ Intersection Dioptre::intersection(LightRay *ray)
         // Cas rayon vertical
         x = ray->start_pos.x;
         y = a * (x - x0) + y0;
-        // #if DEBUG
-        //         DrawCircle(x, y, 5, BLUE);
-        // #endif
+        if (ray->iteration == 3)
+            DrawCircle(x, y, 5, GREEN);
         if (x > std::max(x0, x1) or x < std::min(x0, x1))
             return no_inter;
     }
@@ -141,17 +153,8 @@ Intersection Dioptre::intersection(LightRay *ray)
         x = (cos(ray->start_angle) * (-ray->start_pos.y - (a)*x0 + y0) + ray->start_pos.x * sin(ray->start_angle)) / (sin(ray->start_angle) - a * cos(ray->start_angle));
         y = (x - ray->start_pos.x) * (sin(ray->start_angle) / cos(ray->start_angle)) + ray->start_pos.y;
 
-#if DEBUG
-        if (ray->iteration >= 2)
-        {
-            // printf("=> %f %f\n", sin(ray->start_angle) - a * cos(ray->start_angle), (-ray->start_pos.y - (a)*x0 + y0) + ray->start_pos.x * sin(ray->start_angle));
-            printf("=> %f %f\n", sin(ray->start_angle), a * cos(ray->start_angle));
-            DrawLine(x, 0, x, 10000, PURPLE);
-            DrawLine(0, y, 10000, y, PURPLE);
-        }
-        // DrawCircle(x, y, 5, BLUE);
-#endif
-
+        if (ray->iteration == 3)
+            DrawCircle(x, y, 5, PINK);
         if (x > std::max(x0, x1) or x < std::min(x0, x1))
             return no_inter;
     }
@@ -165,21 +168,9 @@ Intersection Dioptre::intersection(LightRay *ray)
     )
         return no_inter;
 
-        // #if DEBUG
-        //     DrawCircle(x, y, 5, GREEN);
-        // #endif
-#if DEBUG
-    if (ray->iteration == 2)
-        DrawCircleLines(x, y, 15, RED);
-#endif
-
     if (abs(x) == INFINITY or abs(y) == INFINITY or abs(x) == NAN or abs(y) == NAN)
         return no_inter;
 
-#if DEBUG
-    if (ray->iteration == 2)
-        DrawCircleLines(x, y, 20, BLUE);
-#endif
     // TODO: Check angle
     return Intersection{{x, y}, this, Vector2DistanceSqr(ray->start_pos, {x, y}), 0};
 }
@@ -199,11 +190,6 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
         inter.dioptre->x0 - inter.point.x,
         inter.dioptre->y0 - inter.point.y,
     });
-    // if (inter.dioptre->x1 > inter.dioptre->x0)
-    // {
-    //     u.x = inter.dioptre->x1 - inter.point.x;
-    //     u.y = inter.dioptre->y1 - inter.point.y;
-    // }
 
     Vector2 OL = Vector2(
         {
@@ -217,6 +203,7 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
     DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 150)), YELLOW);
     DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 100)), YELLOW);
 #endif
+
     bool leaving = Vector2Angle(n, OL) < -PI / 2 or Vector2Angle(n, OL) > PI / 2;
     if (leaving)
         n = Vector2Scale(n, -1);
@@ -225,30 +212,24 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
     DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 100)), PURPLE);
 #endif
     float i1 = Vector2Angle(n, OL);
-    float i2;
-    if (leaving)
-    {
-        i2 = asin(sin(i1) * (1 / inRay->origin_index));
-    }
-    else
-    {
-        i2 = asin(sin(i1) * (index / inRay->origin_index));
-    }
+    float n1 = inRay->origin_index;
+
+    float n2 = this->index;
+    if(leaving) n2 = 1;
+    float i2 = asin(sin(i1) * (n1 / n2));
+
+    // TODO déterminer correctement n1 et n2
 
 #if DEBUG
-    printf("%f \n", i2 * 180 / PI);
-
-    // printf("%f %f %f %f \n", i1, inRay->origin_index, i2, index);
-
-    DrawText(std::to_string((i1 * 180 / PI)).c_str(), inter.point.x, inter.point.y, 20, WHITE);
-    DrawText(std::to_string((i2 * 180 / PI)).c_str(), inter.point.x, inter.point.y + 40, 20, WHITE);
-
+    DrawText(std::to_string((int)round((i1 * 180 / PI))).c_str(), inter.point.x, inter.point.y - 20, 16, WHITE);
+    DrawText(std::to_string((int)round((i2 * 180 / PI))).c_str(), inter.point.x, inter.point.y + 20, 16, WHITE);
 #endif
     Vector2 dir = Vector2Rotate(Vector2Scale(n, -1), i2);
     // DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(), 100)), YELLOW);
 
     long oid = inter.dioptre->id;
-    auto ray = new LightRay(inter.point, Vector2Angle({1, 0}, dir), inRay->iteration + 1, oid, this->index);
+
+    auto ray = new LightRay(inter.point, Vector2Angle({1, 0}, dir), inRay->iteration + 1, oid, n2);
 
     ray->update();
     ray->draw();

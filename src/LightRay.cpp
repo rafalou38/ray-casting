@@ -6,7 +6,7 @@
 
 LightRay::LightRay(Vector2 start_pos, float angle, int iteration, long origin_dioptre_id, float origin_index)
 {
-    // printf("%f %f \n", start_pos.x, start_pos.y);
+    printf("Started new ray at %f %f \n", start_pos.x, start_pos.y);
     this->start_pos = start_pos;
     this->start_angle = angle;
     this->iteration = iteration;
@@ -23,6 +23,9 @@ LightRay::~LightRay()
 void LightRay::draw()
 {
     DrawLineEx(start_pos, end_pos, 1, ColorAlpha(RED, 1.0 / std::max(this->iteration / 1.5f, 1.0f)));
+    
+    // Draw the index
+    DrawText(std::to_string(origin_index).c_str(), (this->start_pos.x + this->end_pos.x) / 2, (this->start_pos.y + this->end_pos.y) / 2, 20, PURPLE);
 }
 
 void LightRay::update()
@@ -46,10 +49,7 @@ void LightRay::update()
             inter_block = block;
         }
     }
-    // printf("%f %f\n", inter.point.x, inter.point.y);
-    #if DEBUG
-    DrawCircle(inter.point.x, inter.point.y, 10, PURPLE);
-    #endif
+
     if (inter.point.x != 0 && inter.point.y != 0)
     {
         this->end_pos.x = inter.point.x;
@@ -65,12 +65,7 @@ void LightRay::update()
     }
     else
     {
-#if DEBUG
         this->end_pos.x = this->start_pos.x + cos(this->start_angle) * 10000;
         this->end_pos.y = this->start_pos.y + sin(this->start_angle) * 10000;
-#else
-        this->end_pos.x = this->start_pos.x + cos(this->start_angle) * 10000;
-        this->end_pos.y = this->start_pos.y + sin(this->start_angle) * 10000;
-#endif
     }
 }

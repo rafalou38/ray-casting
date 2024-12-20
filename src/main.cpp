@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetWindowState(FLAG_WINDOW_MAXIMIZED);
-    SetTargetFPS(60);
+    SetTargetFPS(24);
 
     width = GetRenderWidth();
     height = GetRenderHeight();
@@ -27,11 +27,11 @@ int main(int argc, char *argv[])
 
     Light light = Light(Vector2{100, height / 2.0f}, RED, 5);
     Block block = Block(Vector2{1500, 750}, Vector2{750, 250}, PI / 4, 1.3);
-    Block block2 = Block(Vector2{1000, 600}, Vector2{3000, 250}, 0, 1.3);
+    // Block block2 = Block(Vector2{1000, 600}, Vector2{1000, 250}, 0, 1.3);
 
     while (!WindowShouldClose())
     {
-        printf("new iter\n");
+        printf("\033[2J\033[1;1HFrame\n");
         if (IsWindowResized())
         {
             width = GetRenderWidth();
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
         
         block.compute_dioptres();
         block.draw();
-        block2.draw();
+        // block2.draw();
 
         EndDrawing();
     }

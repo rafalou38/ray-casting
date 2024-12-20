@@ -2,7 +2,7 @@ MAKEFLAGS += --no-builtin-rules
 .SUFFIXES:
 
 CXX = g++
-RAYLIB_PATH = /home/rafael/src/lib/raylib
+RAYLIB_PATH = /home/rafael-arch/src/raylib
 CXXFLAGS = -DPLATFORM_DESKTOP -std=c++20 -Wall -Werror
 
 CXXFLAGS += -ggdb3
