@@ -6,7 +6,9 @@
 
 LightRay::LightRay(Vector2 start_pos, float angle, int iteration, long origin_dioptre_id, float origin_index)
 {
+#if DEBUG
     printf("Started new ray at %f %f \n", start_pos.x, start_pos.y);
+#endif
     this->start_pos = start_pos;
     this->start_angle = angle;
     this->iteration = iteration;
@@ -23,9 +25,11 @@ LightRay::~LightRay()
 void LightRay::draw()
 {
     DrawLineEx(start_pos, end_pos, 1, ColorAlpha(RED, 1.0 / std::max(this->iteration / 1.5f, 1.0f)));
-    
+
+#if DEBUG
     // Draw the index
     DrawText(std::to_string(origin_index).c_str(), (this->start_pos.x + this->end_pos.x) / 2, (this->start_pos.y + this->end_pos.y) / 2, 20, PURPLE);
+#endif
 }
 
 void LightRay::update()

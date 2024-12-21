@@ -4,8 +4,10 @@
 
 #define PT_SIZE 10
 
-Light::Light(Vector2 position, Color color, int ray_cnt)
+Light::Light(Vector2 position, Color color, int ray_cnt, bool infinity, double angle)
 {
+    this->start_angle = angle;
+    this->infinity = infinity;
     this->position = position;
     this->color = color;
     this->ray_cnt = ray_cnt;
@@ -38,16 +40,29 @@ void Light::update()
 
         for (size_t i = 0; i < ray_cnt; i++)
         {
-            rays.push_back(new LightRay(position, PI/2, 0, 0));
-            // rays.push_back(new LightRay(position, 2 * M_PI * i / ray_cnt, 0, 0));
+            if (infinity)
+            {
+                rays.push_back(new LightRay(position, start_angle, 0, 0));
+            }
+            else
+            {
+                rays.push_back(new LightRay(position, 2 * M_PI * i / ray_cnt, 0, 0));
+            }
         }
     }
 
-
-    for (size_t i = 0; i < ray_cnt; i++)
+    for (int i = 0; i < (int)ray_cnt; i++)
     {
         auto ray = rays[i];
-        ray->start_pos = {position.x + i* 2, position.y};
+        if (infinity)
+        {
+            ray->start_pos = {position.x + (i - (int)ray_cnt/2) * 2 * (float)sin(start_angle), position.y + (i - (int)ray_cnt/2) * 2 * (float)cos(start_angle)};
+        }
+        else
+        {
+            ray->start_pos = {position.x, position.y};
+        }
+
         ray->update();
     }
 }

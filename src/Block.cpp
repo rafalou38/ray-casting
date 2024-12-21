@@ -82,7 +82,9 @@ Intersection Block::intersection(LightRay *ray)
     Intersection inter = {{0, 0}, NULL, INFINITY, 0};
     float d = INFINITY;
 
+#if DEBUG
     printf("\tintersection %f with block %f %f \n", ray->iteration, this->position.x, this->position.y);
+#endif
 
     for (size_t i = 0; i < dioptres.size(); i++)
     {
@@ -98,9 +100,9 @@ Intersection Block::intersection(LightRay *ray)
         float d2 = Vector2DistanceSqr(inter2.point, ray->start_pos);
         if (ray->iteration == 42)
             DrawCircleV(inter2.point, 6, YELLOW);
-
+#if DEBUG
         printf("\t\t new candidate: %ld\n", dioptres[i].id);
-
+#endif
         if (d2 < d)
         {
             if (ray->iteration == 42)
@@ -114,7 +116,9 @@ Intersection Block::intersection(LightRay *ray)
     {
         if (ray->iteration == 42)
             DrawCircleV(inter.point, 10, GREEN);
+#if DEBUG
         printf("\t\t-> saved: %ld\n", inter.dioptre->id);
+#endif
     }
 
     return inter;
@@ -133,8 +137,10 @@ Intersection Dioptre::intersection(LightRay *ray)
         // Cas dioptre horizontal
         x = x0;
         y = (x - ray->start_pos.x) * (sin(ray->start_angle) / cos(ray->start_angle)) + ray->start_pos.y;
+#if DEBUG
         if (ray->iteration == 3)
             DrawCircle(x, y, 5, BLUE);
+#endif
         if (y > std::max(y0, y1) or y < std::min(y0, y1))
             return no_inter;
     }
@@ -143,8 +149,10 @@ Intersection Dioptre::intersection(LightRay *ray)
         // Cas rayon vertical
         x = ray->start_pos.x;
         y = a * (x - x0) + y0;
+#if DEBUG
         if (ray->iteration == 3)
             DrawCircle(x, y, 5, GREEN);
+#endif
         if (x > std::max(x0, x1) or x < std::min(x0, x1))
             return no_inter;
     }
@@ -153,8 +161,10 @@ Intersection Dioptre::intersection(LightRay *ray)
         x = (cos(ray->start_angle) * (-ray->start_pos.y - (a)*x0 + y0) + ray->start_pos.x * sin(ray->start_angle)) / (sin(ray->start_angle) - a * cos(ray->start_angle));
         y = (x - ray->start_pos.x) * (sin(ray->start_angle) / cos(ray->start_angle)) + ray->start_pos.y;
 
+#if DEBUG
         if (ray->iteration == 3)
             DrawCircle(x, y, 5, PINK);
+#endif
         if (x > std::max(x0, x1) or x < std::min(x0, x1))
             return no_inter;
     }
@@ -215,7 +225,8 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
     float n1 = inRay->origin_index;
 
     float n2 = this->index;
-    if(leaving) n2 = 1;
+    if (leaving)
+        n2 = 1;
     float i2 = asin(sin(i1) * (n1 / n2));
 
     // TODO déterminer correctement n1 et n2

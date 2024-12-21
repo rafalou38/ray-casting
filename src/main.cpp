@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     SetWindowState(FLAG_WINDOW_MAXIMIZED);
-    SetTargetFPS(24);
+    SetTargetFPS(0);
 
     width = GetRenderWidth();
     height = GetRenderHeight();
@@ -53,17 +53,23 @@ int main(int argc, char *argv[])
         {
             b->clearRays();
         }
+
+
+        if (IsKeyDown(KEY_LEFT))
+            block.tilt += 0.02f;
+        else if (IsKeyDown(KEY_RIGHT))
+            block.tilt -= 0.02f;
+        else if (IsKeyDown(KEY_I))
+        {
+            light.rays.clear();
+            light.infinity = !light.infinity;
+        }
         
         light.position = GetMousePosition();
 
         light.update();
         light.draw();
 
-        if (IsKeyDown(KEY_LEFT))
-            block.tilt += 0.02f;
-        else if (IsKeyDown(KEY_RIGHT))
-            block.tilt -= 0.02f;
-        
         block.compute_dioptres();
         block.draw();
         // block2.draw();
