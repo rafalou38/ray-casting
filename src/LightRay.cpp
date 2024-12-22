@@ -4,7 +4,7 @@
 #include "LightRay.hpp"
 #include "Block.hpp"
 
-LightRay::LightRay(Vector2 start_pos, float angle, int iteration, long origin_dioptre_id, float origin_index)
+LightRay::LightRay(Vector2 start_pos, float angle, int iteration, long origin_dioptre_id)
 {
 #if DEBUG
     printf("Started new ray at %f %f \n", start_pos.x, start_pos.y);
@@ -13,7 +13,6 @@ LightRay::LightRay(Vector2 start_pos, float angle, int iteration, long origin_di
     this->start_angle = angle;
     this->iteration = iteration;
     this->origin_dioptre_id = origin_dioptre_id;
-    this->origin_index = origin_index;
 
     LightRay::ray_cnt++;
 }
@@ -29,18 +28,12 @@ void LightRay::draw()
 
 #if DEBUG
     // Draw the index
-    DrawText(std::to_string(origin_index).c_str(), (this->start_pos.x + this->end_pos.x) / 2, (this->start_pos.y + this->end_pos.y) / 2, 20, PURPLE);
+    // DrawText(std::to_string(origin_index).c_str(), (this->start_pos.x + this->end_pos.x) / 2, (this->start_pos.y + this->end_pos.y) / 2, 20, PURPLE);
 #endif
 }
 
 void LightRay::update()
 {
-    // Block *start_blok = Block::get_block(start_pos);
-    // if (start_blok != NULL)
-    //     origin_index = start_blok->index;
-    // else
-    //     origin_index = 1;
-
     Intersection inter = {{0, 0}, NULL, INFINITY, 0};
     float d = INFINITY;
     Block *inter_block = nullptr;

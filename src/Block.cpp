@@ -242,9 +242,20 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
     DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 100)), PURPLE);
 #endif
     float i1 = Vector2Angle(n, OL);
-    float n1 = inRay->origin_index;
 
-    float n2 = this->index;
+    Vector2 inbound_dir = Vector2Normalize(Vector2Subtract(inter.point, inRay->start_pos));
+
+    Block *inbound_block = Block::get_block(Vector2Subtract(inter.point, inbound_dir));
+    Block *outbound_block = Block::get_block(Vector2Add(inter.point, inbound_dir));
+
+#if DEBUG
+    DrawCircleV(Vector2Subtract(inter.point, inbound_dir), 2, GREEN);
+    DrawCircleV(Vector2Add(inter.point, inbound_dir), 2, BLUE);
+#endif
+
+    float n1 = inbound_block == NULL ? 1 : inbound_block->index;
+    float n2 = outbound_block == NULL ? 1 : outbound_block->index;
+
     if (leaving)
         n2 = 1;
     float i2 = asin(sin(i1) * (n1 / n2));
@@ -260,7 +271,7 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
 
     long oid = inter.dioptre->id;
 
-    auto ray = new LightRay(inter.point, Vector2Angle({1, 0}, dir), inRay->iteration + 1, oid, n2);
+    auto ray = new LightRay(inter.point, Vector2Angle({1, 0}, dir), inRay->iteration + 1, oid);
 
     ray->update();
     ray->draw();
