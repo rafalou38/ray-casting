@@ -95,21 +95,16 @@ Intersection Block::intersection(LightRay *ray)
             continue;
 
         Intersection inter2 = dioptres[i].intersection(ray);
-        if (ray->iteration == 42)
-            DrawCircleV(inter2.point, 6, BLUE);
         if (inter2.dioptre == NULL)
             continue;
 
         float d2 = Vector2DistanceSqr(inter2.point, ray->start_pos);
-        if (ray->iteration == 42)
-            DrawCircleV(inter2.point, 6, YELLOW);
 #if DEBUG
         printf("\t\t new candidate: %ld\n", dioptres[i].id);
 #endif
         if (d2 < d)
         {
-            if (ray->iteration == 42)
-                DrawCircleV(inter2.point, 6, RED);
+
             inter = inter2;
             d = d2;
         }
@@ -117,8 +112,6 @@ Intersection Block::intersection(LightRay *ray)
 
     if (d != INFINITY)
     {
-        if (ray->iteration == 42)
-            DrawCircleV(inter.point, 10, GREEN);
 #if DEBUG
         printf("\t\t-> saved: %ld\n", inter.dioptre->id);
 #endif
@@ -214,8 +207,7 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
     Vector2 n = Vector2Rotate(OJ, PI / 2);
 
 #if DEBUG
-    DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 150)), YELLOW);
-    DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 100)), YELLOW);
+    DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 40)), YELLOW);
 #endif
 
     // entrant ou sortant
@@ -224,11 +216,11 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
         n = Vector2Scale(n, -1);
 
 #if DEBUG
-    DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 100)), PURPLE);
+    DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 40)), PURPLE);
 #endif
     float i1 = Vector2Angle(n, OL);
 
-    Vector2 inbound_dir = Vector2Normalize(Vector2Subtract(inter.point, inRay->start_pos));
+    Vector2 inbound_dir = Vector2Scale(Vector2Normalize(Vector2Subtract(inter.point, inRay->start_pos)), 0.5);
 
     Block *inbound_block = scene->get_block(Vector2Subtract(inter.point, inbound_dir));
     Block *outbound_block = scene->get_block(Vector2Add(inter.point, inbound_dir));
@@ -241,15 +233,15 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
     float n1 = inbound_block == NULL ? 1 : inbound_block->index;
     float n2 = outbound_block == NULL ? 1 : outbound_block->index;
 
-    if (leaving)
-        n2 = 1;
     float i2 = asin(sin(i1) * (n1 / n2));
 
     // TODO déterminer correctement n1 et n2
 
 #if DEBUG
-    DrawText(std::to_string((int)round((i1 * 180 / PI))).c_str(), inter.point.x, inter.point.y - 20, 16, WHITE);
-    DrawText(std::to_string((int)round((i2 * 180 / PI))).c_str(), inter.point.x, inter.point.y + 20, 16, WHITE);
+    DrawText(std::to_string((n1)).c_str(), inter.point.x, inter.point.y + 20, 16, WHITE);
+    DrawText(std::to_string((n2)).c_str(), inter.point.x, inter.point.y - 20, 16, WHITE);
+    // DrawText(std::to_string((int)round((i1 * 180 / PI))).c_str(), inter.point.x, inter.point.y - 20, 16, WHITE);
+    // DrawText(std::to_string((int)round((i2 * 180 / PI))).c_str(), inter.point.x, inter.point.y + 20, 16, WHITE);
 #endif
     Vector2 dir = Vector2Rotate(Vector2Scale(n, -1), i2);
     // DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(), 100)), YELLOW);

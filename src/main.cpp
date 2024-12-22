@@ -10,7 +10,7 @@
 int main(int argc, char *argv[])
 {
 
-    int width = 800;
+    int width = 1500;
     int height = 450;
 
     SetTraceLogLevel(LOG_WARNING);
@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     InitWindow(width, height, "GravitX");
 
     SetWindowState(FLAG_WINDOW_RESIZABLE);
-    // SetWindowState(FLAG_WINDOW_MAXIMIZED);
+    SetWindowState(FLAG_WINDOW_MAXIMIZED);
     SetTargetFPS(0);
 
     width = GetRenderWidth();
@@ -44,6 +44,12 @@ int main(int argc, char *argv[])
         {
             width = GetRenderWidth();
             height = GetRenderHeight();
+
+            // float cell_height = 40;
+            // for (int i = 0; i < (height - 100) / cell_height; i++)
+            // {
+            //     main_scene.add_block(new Block(&main_scene, Vector2{0, 50 + (float)i * (cell_height - 1)}, Vector2{(float)width, cell_height}, 0, 1.0 + 0.1 * i));
+            // }
         }
 
         // -------------------------
@@ -61,10 +67,10 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (IsKeyDown(KEY_LEFT))
-            block->tilt += 0.02f;
-        if (IsKeyDown(KEY_RIGHT))
-            block->tilt -= 0.02f;
+        // if (IsKeyDown(KEY_LEFT))
+        //     block->tilt += 0.02f;
+        // if (IsKeyDown(KEY_RIGHT))
+        //     block->tilt -= 0.02f;
         if (IsKeyPressed(KEY_I))
         {
             light->stale = true;
