@@ -7,6 +7,60 @@
 #include "Light.hpp"
 #include "Block.hpp"
 
+void config_lens(Scene *main_scene)
+{
+    float refractive_index = 1.2; // Fixed refractive index for the lens
+    float lens_opacity = 0.3;     // Opacity for lens blocks
+
+    float lens_height = 100; // Total height of the lens
+    float lens_width = 100;  // Total width of the lens
+
+    // Center of the lens
+    // float lens_center_y = 300;
+
+    float steps = 45;
+    for (float y = 0; y <= 1; y += 1 / steps)
+    {
+        float cell_height = lens_height / steps; // Height of each segment
+        float w = sqrt(1 - y * y);
+
+        Vector2 pos = Vector2{600, 800};
+
+        pos.y -= y * (lens_height - 10);
+        pos.x -= w * lens_width;
+        // Add the block to the scene
+        main_scene->add_block(new Block(
+            main_scene,
+            pos,
+            Vector2{w * 2 * lens_width, cell_height},
+            0,
+            refractive_index,
+            ColorAlpha(WHITE, lens_opacity)));
+
+        float yy = y + 1 / steps;
+        float ww = sqrt(1 - yy * yy);
+
+
+        float t_to_next = sqrt(pow((w - ww) * lens_width, 2) + pow(cell_height, 2));
+        main_scene->add_block(new Block(
+            main_scene,
+            pos,
+            Vector2{t_to_next, cell_height},
+            -atan2(cell_height, ((w - ww) * lens_width)),
+            refractive_index,
+            ColorAlpha(WHITE, lens_opacity)));
+        pos.y -= cell_height;
+        pos.x = 600 + ww * lens_width;
+        main_scene->add_block(new Block(
+            main_scene,
+            pos,
+            Vector2{t_to_next, cell_height},
+            PI/2 - atan2(((w - ww) * lens_width), cell_height),
+            refractive_index,
+            ColorAlpha(WHITE, lens_opacity)));
+    }
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -31,9 +85,9 @@ int main(int argc, char *argv[])
     Light *light = new Light(&main_scene, Vector2{100, height / 2.0f}, RED, 5);
     main_scene.add_light(light);
 
-    Block *block = new Block(&main_scene, Vector2{200, 200}, Vector2{700, 250}, PI / 4, 1.3);
-    main_scene.add_block(block);
-
+    // Block *block = new Block(&main_scene, Vector2{200, 200}, Vector2{700, 250}, PI / 4, 4);
+    // main_scene.add_block(block);
+    config_lens(&main_scene);
 
     while (!WindowShouldClose())
     {
@@ -45,10 +99,10 @@ int main(int argc, char *argv[])
             width = GetRenderWidth();
             height = GetRenderHeight();
 
-            // float cell_height = 40;
+            // float cell_height = 10;
             // for (int i = 0; i < (height - 100) / cell_height; i++)
             // {
-            //     main_scene.add_block(new Block(&main_scene, Vector2{0, 50 + (float)i * (cell_height - 1)}, Vector2{(float)width, cell_height}, 0, 1.0 + 0.1 * i));
+            //     main_scene.add_block(new Block(&main_scene, Vector2{50, 50 + (float)i * (cell_height - 1)}, Vector2{(float)width - 50, cell_height}, 0, 1.0 + 0.1 * i, ColorAlpha(WHITE, 0.2)));
             // }
         }
 
@@ -62,15 +116,23 @@ int main(int argc, char *argv[])
             }
             else
             {
-                light->ray_cnt *= 1 + GetMouseWheelMove() / 2;
-                light->ray_cnt = std::max((int)light->ray_cnt, 1);
+                if (IsKeyDown(KEY_LEFT_CONTROL))
+                {
+                    light->start_angle += GetMouseWheelMove() / 4;
+                    light->stale = true;
+                }
+                else
+                {
+                    light->ray_cnt *= 1 + GetMouseWheelMove() / 2;
+                    light->ray_cnt = std::max((int)light->ray_cnt, 1);
+                }
             }
         }
 
         // if (IsKeyDown(KEY_LEFT))
-        //     block->tilt += 0.02f;
+        //     block->tilt += 0.002f;
         // if (IsKeyDown(KEY_RIGHT))
-        //     block->tilt -= 0.02f;
+        //     block->tilt -= 0.002f;
         if (IsKeyPressed(KEY_I))
         {
             light->stale = true;

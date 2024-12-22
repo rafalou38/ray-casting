@@ -220,7 +220,7 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
 #endif
     float i1 = Vector2Angle(n, OL);
 
-    Vector2 inbound_dir = Vector2Scale(Vector2Normalize(Vector2Subtract(inter.point, inRay->start_pos)), 0.5);
+    Vector2 inbound_dir = Vector2Scale(Vector2Normalize(Vector2Subtract(inter.point, inRay->start_pos)), POS_DELTA);
 
     Block *inbound_block = scene->get_block(Vector2Subtract(inter.point, inbound_dir));
     Block *outbound_block = scene->get_block(Vector2Add(inter.point, inbound_dir));
@@ -235,6 +235,15 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
 
     float i2 = asin(sin(i1) * (n1 / n2));
 
+    if (isnan(i2))
+    {
+#if REFLECTION
+        i2 =  PI - i1;
+#else
+        return;
+#endif
+    }
+
     // TODO déterminer correctement n1 et n2
 
 #if DEBUG
@@ -248,7 +257,7 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
 
     long oid = inter.dioptre->id;
 
-    auto ray = new LightRay(inRay->light,inter.point, Vector2Angle({1, 0}, dir), inRay->iteration + 1, oid);
+    auto ray = new LightRay(inRay->light, inter.point, Vector2Angle({1, 0}, dir), inRay->iteration + 1, oid);
 
     ray->update();
     ray->draw();

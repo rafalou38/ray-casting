@@ -48,7 +48,7 @@ void Light::update()
             }
             else
             {
-                rays.push_back(new LightRay(this, position, 2 * M_PI * i / ray_cnt, 0, 0));
+                rays.push_back(new LightRay(this, position, start_angle + sqrt(3) + 2 * M_PI * i / ray_cnt, 0, 0));
             }
         }
     }
@@ -58,7 +58,7 @@ void Light::update()
         auto ray = rays[i];
         if (infinity)
         {
-            ray->start_pos = {position.x + (i - (int)ray_cnt/2) * 2 * (float)sin(start_angle), position.y + (i - (int)ray_cnt/2) * 2 * (float)cos(start_angle)};
+            ray->start_pos = {position.x + (i*2 - (int)ray_cnt/2) * 2 * (float)sin(PI -start_angle  ), position.y + (i*2 - (int)ray_cnt/2) * 2 * (float)cos(PI -start_angle  )};
         }
         else
         {

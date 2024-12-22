@@ -25,7 +25,7 @@ LightRay::~LightRay()
 
 void LightRay::draw()
 {
-    DrawLineEx(start_pos, end_pos, 1, ColorAlpha(RED, std::max(1.0, 1.0 / std::max(this->iteration / 1.5f, 1.0f))));
+    DrawLineEx(start_pos, end_pos, 1, ColorAlpha(RED, std::max(0.5, 1.0 / std::max(this->iteration / 1.5f, 1.0f))));
     // DrawLineEx(start_pos, end_pos, 1, ColorAlpha(RED, std::max(0.25, 1.0 / std::max(this->iteration / 1.5f, 1.0f))));
 
 #if DEBUG
