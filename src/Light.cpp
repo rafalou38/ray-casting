@@ -30,8 +30,9 @@ void Light::draw()
 
 void Light::update()
 {
-    if (rays.size() != ray_cnt)
+    if (rays.size() != ray_cnt || stale)
     {
+        stale = false;
         for (auto ray : rays)
         {
             delete ray;

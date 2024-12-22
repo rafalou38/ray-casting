@@ -20,7 +20,6 @@ public:
     float index;
     Dioptre(float x0, float y0, float x1, float y1, float index)
     {
-        printf("Dioptre created\n");
         this->id = random()%255;
         this->x0 = x0;
         this->y0 = y0;

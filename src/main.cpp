@@ -40,8 +40,15 @@ int main(int argc, char *argv[])
 
         if (GetMouseWheelMove() != 0)
         {
-            light.ray_cnt *= 1 + GetMouseWheelMove() / 2;
-            light.ray_cnt = std::max((int)light.ray_cnt, 1);
+            if (GetMouseWheelMove() > 0 && light.ray_cnt == 1)
+            {
+                light.ray_cnt++;
+            }
+            else
+            {
+                light.ray_cnt *= 1 + GetMouseWheelMove() / 2;
+                light.ray_cnt = std::max((int)light.ray_cnt, 1);
+            }
         }
 
         BeginDrawing();
@@ -54,17 +61,16 @@ int main(int argc, char *argv[])
             b->clearRays();
         }
 
-
         if (IsKeyDown(KEY_LEFT))
             block.tilt += 0.02f;
         else if (IsKeyDown(KEY_RIGHT))
             block.tilt -= 0.02f;
-        else if (IsKeyDown(KEY_I))
+        else if (IsKeyPressed(KEY_I))
         {
-            light.rays.clear();
+            light.stale = true;
             light.infinity = !light.infinity;
         }
-        
+
         light.position = GetMousePosition();
 
         light.update();

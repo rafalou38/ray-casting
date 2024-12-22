@@ -207,6 +207,7 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
             inRay->start_pos.y - inter.point.y,
         });
 
+    // Vecteur normal
     Vector2 n = Vector2Rotate(OJ, PI / 2);
 
 #if DEBUG
@@ -214,6 +215,7 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
     DrawLineV(inter.point, Vector2Add(inter.point, Vector2Scale(Vector2Normalize(n), 100)), YELLOW);
 #endif
 
+    // entrant ou sortant
     bool leaving = Vector2Angle(n, OL) < -PI / 2 or Vector2Angle(n, OL) > PI / 2;
     if (leaving)
         n = Vector2Scale(n, -1);

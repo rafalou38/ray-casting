@@ -14,6 +14,7 @@ public:
     Color color = RED;
     size_t ray_cnt;
 
+    bool stale = true;
     bool infinity = false;
     double start_angle = 0;
     std::vector<LightRay*> rays;
