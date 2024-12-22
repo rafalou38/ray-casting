@@ -1,10 +1,13 @@
 #pragma once
+
 #include "Object.hpp"
 #include "LightRay.hpp"
 #include "Config.hpp"
+#include "Scene.hpp"
 
 struct Intersection;
 class LightRay;
+class Scene;
 
 class Dioptre
 {
@@ -39,17 +42,17 @@ public:
 class Block : public Object
 {
 private:
-    std::vector<Dioptre> dioptres;
+    Scene *scene;
 
 public:
-    inline static std::vector<Block *> blocks;
-    static Block *get_block(Vector2 point);
+    std::vector<Dioptre> dioptres;
     std::vector<LightRay *> outRays;
     Vector2 size;
     float tilt;
     float index;
+    Color color;
 
-    Block(Vector2 position, Vector2 size, float tilt = 0, float index = 1);
+    Block(Scene *scene, Vector2 position, Vector2 size, float tilt = 0, float index = 1, Color color = WHITE);
     ~Block();
 
     void compute_dioptres();

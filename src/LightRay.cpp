@@ -4,11 +4,12 @@
 #include "LightRay.hpp"
 #include "Block.hpp"
 
-LightRay::LightRay(Vector2 start_pos, float angle, int iteration, long origin_dioptre_id)
+LightRay::LightRay(Light *light, Vector2 start_pos, float angle, int iteration, long origin_dioptre_id)
 {
 #if DEBUG
     printf("Started new ray at %f %f \n", start_pos.x, start_pos.y);
 #endif
+    this->light = light;
     this->start_pos = start_pos;
     this->start_angle = angle;
     this->iteration = iteration;
@@ -37,9 +38,9 @@ void LightRay::update()
     Intersection inter = {{0, 0}, NULL, INFINITY, 0};
     float d = INFINITY;
     Block *inter_block = nullptr;
-    for (size_t i = 0; i < Block::blocks.size(); i++)
+    for (size_t i = 0; i < light->scene->blocks.size(); i++)
     {
-        Block *block = Block::blocks[i];
+        Block *block = light->scene->blocks[i];
         Intersection inter2 = block->intersection(this);
         if (inter2.point.x == 0 && inter2.point.y == 0)
             continue;

@@ -2,15 +2,16 @@
 #include <iostream>
 #include <string>
 
-Block::Block(Vector2 position, Vector2 size, float tilt, float index)
+Block::Block(Scene *scene, Vector2 position, Vector2 size, float tilt, float index, Color color)
 {
+    this->scene = scene;
     this->position = position;
     this->size = size;
     this->index = index;
+    this->color = color;
 
     this->tilt = tilt;
 
-    Block::blocks.push_back(this);
     // dioptres.resize(4, {0, 0, 0, 0, index});
 
     for (size_t i = 0; i < 4; i++)
@@ -25,27 +26,11 @@ Block::~Block()
 {
 }
 
-Block *Block::get_block(Vector2 point)
-{
-    for (auto block : blocks)
-    {
-        float d0 = Vector2DotProduct(Vector2{block->dioptres[0].x1 - block->dioptres[0].x0, block->dioptres[0].y1 - block->dioptres[0].y0}, Vector2{point.x - block->dioptres[0].x0, point.y - block->dioptres[0].y0});
-        float d1 = Vector2DotProduct(Vector2{block->dioptres[1].x1 - block->dioptres[1].x0, block->dioptres[1].y1 - block->dioptres[1].y0}, Vector2{point.x - block->dioptres[1].x0, point.y - block->dioptres[1].y0});
-        float d2 = Vector2DotProduct(Vector2{block->dioptres[2].x1 - block->dioptres[2].x0, block->dioptres[2].y1 - block->dioptres[2].y0}, Vector2{point.x - block->dioptres[2].x0, point.y - block->dioptres[2].y0});
-        float d3 = Vector2DotProduct(Vector2{block->dioptres[3].x1 - block->dioptres[3].x0, block->dioptres[3].y1 - block->dioptres[3].y0}, Vector2{point.x - block->dioptres[3].x0, point.y - block->dioptres[3].y0});
-
-        if (d0 > 0 && d1 > 0 && d2 > 0 && d3 > 0)
-            return block;
-    }
-
-    return NULL;
-}
-
 void Block::draw()
 {
     for (auto &dioptre : dioptres)
     {
-        DrawLineV({dioptre.x0, dioptre.y0}, {dioptre.x1, dioptre.y1}, WHITE);
+        DrawLineV({dioptre.x0, dioptre.y0}, {dioptre.x1, dioptre.y1}, this->color);
 #if DEBUG
         DrawText(std::to_string(dioptre.id).c_str(), (dioptre.x0 + dioptre.x1) / 2, (dioptre.y0 + dioptre.y1) / 2, 20, WHITE);
         DrawCircleV({dioptre.x1, dioptre.y1}, 3, LIGHTGRAY);
@@ -245,8 +230,8 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
 
     Vector2 inbound_dir = Vector2Normalize(Vector2Subtract(inter.point, inRay->start_pos));
 
-    Block *inbound_block = Block::get_block(Vector2Subtract(inter.point, inbound_dir));
-    Block *outbound_block = Block::get_block(Vector2Add(inter.point, inbound_dir));
+    Block *inbound_block = scene->get_block(Vector2Subtract(inter.point, inbound_dir));
+    Block *outbound_block = scene->get_block(Vector2Add(inter.point, inbound_dir));
 
 #if DEBUG
     DrawCircleV(Vector2Subtract(inter.point, inbound_dir), 2, GREEN);
@@ -271,7 +256,7 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
 
     long oid = inter.dioptre->id;
 
-    auto ray = new LightRay(inter.point, Vector2Angle({1, 0}, dir), inRay->iteration + 1, oid);
+    auto ray = new LightRay(inRay->light,inter.point, Vector2Angle({1, 0}, dir), inRay->iteration + 1, oid);
 
     ray->update();
     ray->draw();

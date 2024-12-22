@@ -5,6 +5,8 @@
 #include "Block.hpp"
 
 class Dioptre;
+class Block;
+class Light;
 
 struct Intersection
 {
@@ -24,11 +26,13 @@ public:
     float start_angle;
     Vector2 end_pos;
 
+    Light *light;
+
     float iteration;
     long origin_dioptre_id;
 
 
-    LightRay(Vector2 start_pos, float angle, int iteration = 0, long origin_dioptre_index = -1);
+    LightRay(Light *light, Vector2 start_pos, float angle, int iteration = 0, long origin_dioptre_index = -1);
     ~LightRay();
 
     void update();

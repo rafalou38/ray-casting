@@ -4,8 +4,9 @@
 
 #define PT_SIZE 10
 
-Light::Light(Vector2 position, Color color, int ray_cnt, bool infinity, double angle)
+Light::Light(Scene *scene, Vector2 position, Color color, int ray_cnt, bool infinity, double angle)
 {
+    this->scene = scene;
     this->start_angle = angle;
     this->infinity = infinity;
     this->position = position;
@@ -43,11 +44,11 @@ void Light::update()
         {
             if (infinity)
             {
-                rays.push_back(new LightRay(position, start_angle, 0, 0));
+                rays.push_back(new LightRay(this, position, start_angle, 0, 0));
             }
             else
             {
-                rays.push_back(new LightRay(position, 2 * M_PI * i / ray_cnt, 0, 0));
+                rays.push_back(new LightRay(this, position, 2 * M_PI * i / ray_cnt, 0, 0));
             }
         }
     }

@@ -76,6 +76,11 @@
     "stdfloat": "cpp",
     "stop_token": "cpp",
     "thread": "cpp",
-    "*.m": "cpp"
+    "*.m": "cpp",
+    "any": "cpp",
+    "codecvt": "cpp",
+    "complex": "cpp",
+    "fstream": "cpp",
+    "future": "cpp"
   },
 }
