@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     LightRay::ray_cnt = 0;
 
     Light light = Light(Vector2{100, height / 2.0f}, RED, 5);
-    Block block = Block(Vector2{1500, 750}, Vector2{750, 250}, PI / 4, 1.3);
+    Block block = Block(Vector2{200, 200}, Vector2{700, 250}, PI / 4, 1.3);
     // Block block2 = Block(Vector2{1000, 600}, Vector2{1000, 250}, 0, 1.3);
 
     while (!WindowShouldClose())

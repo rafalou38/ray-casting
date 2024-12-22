@@ -43,6 +43,7 @@ private:
 
 public:
     inline static std::vector<Block *> blocks;
+    static Block *get_block(Vector2 point);
     std::vector<LightRay *> outRays;
     Vector2 size;
     float tilt;

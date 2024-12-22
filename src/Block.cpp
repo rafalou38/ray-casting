@@ -1,4 +1,6 @@
 #include "Block.hpp"
+#include <iostream>
+#include <string>
 
 Block::Block(Vector2 position, Vector2 size, float tilt, float index)
 {
@@ -21,6 +23,22 @@ Block::Block(Vector2 position, Vector2 size, float tilt, float index)
 
 Block::~Block()
 {
+}
+
+Block *Block::get_block(Vector2 point)
+{
+    for (auto block : blocks)
+    {
+        float d0 = Vector2DotProduct(Vector2{block->dioptres[0].x1 - block->dioptres[0].x0, block->dioptres[0].y1 - block->dioptres[0].y0}, Vector2{point.x - block->dioptres[0].x0, point.y - block->dioptres[0].y0});
+        float d1 = Vector2DotProduct(Vector2{block->dioptres[1].x1 - block->dioptres[1].x0, block->dioptres[1].y1 - block->dioptres[1].y0}, Vector2{point.x - block->dioptres[1].x0, point.y - block->dioptres[1].y0});
+        float d2 = Vector2DotProduct(Vector2{block->dioptres[2].x1 - block->dioptres[2].x0, block->dioptres[2].y1 - block->dioptres[2].y0}, Vector2{point.x - block->dioptres[2].x0, point.y - block->dioptres[2].y0});
+        float d3 = Vector2DotProduct(Vector2{block->dioptres[3].x1 - block->dioptres[3].x0, block->dioptres[3].y1 - block->dioptres[3].y0}, Vector2{point.x - block->dioptres[3].x0, point.y - block->dioptres[3].y0});
+
+        if (d0 > 0 && d1 > 0 && d2 > 0 && d3 > 0)
+            return block;
+    }
+
+    return NULL;
 }
 
 void Block::draw()

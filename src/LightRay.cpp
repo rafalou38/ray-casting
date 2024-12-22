@@ -14,6 +14,7 @@ LightRay::LightRay(Vector2 start_pos, float angle, int iteration, long origin_di
     this->iteration = iteration;
     this->origin_dioptre_id = origin_dioptre_id;
     this->origin_index = origin_index;
+
     LightRay::ray_cnt++;
 }
 
@@ -34,6 +35,12 @@ void LightRay::draw()
 
 void LightRay::update()
 {
+    // Block *start_blok = Block::get_block(start_pos);
+    // if (start_blok != NULL)
+    //     origin_index = start_blok->index;
+    // else
+    //     origin_index = 1;
+
     Intersection inter = {{0, 0}, NULL, INFINITY, 0};
     float d = INFINITY;
     Block *inter_block = nullptr;
