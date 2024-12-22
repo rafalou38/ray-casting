@@ -89,6 +89,9 @@ int main(int argc, char *argv[])
     // main_scene.add_block(block);
     config_lens(&main_scene);
 
+    // main_scene.add_block(new Block(&main_scene, Vector2{50, 50}, Vector2{1000, 50}, 0, 1.3, ColorAlpha(WHITE, 0.9)));
+    // main_scene.add_block(new Block(&main_scene, Vector2{50, 100}, Vector2{1000, 50}, 0, 1.3, ColorAlpha(WHITE, 0.9)));
+
     while (!WindowShouldClose())
     {
 #if DEBUG
@@ -139,6 +142,8 @@ int main(int argc, char *argv[])
             light->infinity = !light->infinity;
         }
         light->position = GetMousePosition();
+        light->position.x += sqrt(3)/10;
+        light->position.y += sqrt(3)/10;
 
         // --------------------
         BeginDrawing();

@@ -98,6 +98,27 @@ Intersection Block::intersection(LightRay *ray)
         if (inter2.dioptre == NULL)
             continue;
 
+        if (false)
+        {
+            Vector2 inbound_dir = Vector2Scale(Vector2Normalize(Vector2Subtract(inter2.point, ray->start_pos)), POS_DELTA);
+            Block *inbound_block = scene->get_block(Vector2Subtract(inter2.point, inbound_dir));
+            Block *outbound_block = scene->get_block(Vector2Add(inter2.point, inbound_dir));
+
+            float n1 = inbound_block == NULL ? 1 : inbound_block->index;
+            float n2 = outbound_block == NULL ? 1 : outbound_block->index;
+            // DrawCircleV(Vector2Subtract(inter2.point, inbound_dir), 2, GREEN);
+            // DrawCircleV(Vector2Add(inter2.point, inbound_dir), 2, BLUE);
+
+            // DrawText(std::to_string((n1)).c_str(), inter2.point.x, inter2.point.y + 20, 16, WHITE);
+            // DrawText(std::to_string((n2)).c_str(), inter2.point.x, inter2.point.y - 20, 16, WHITE);
+
+            if (n1 == n2)
+            {
+                // DrawCircleLinesV(inter2.point, 5, PINK);
+                continue;
+            }
+        }
+
         float d2 = Vector2DistanceSqr(inter2.point, ray->start_pos);
 #if DEBUG
         printf("\t\t new candidate: %ld\n", dioptres[i].id);
@@ -238,7 +259,7 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
     if (isnan(i2))
     {
 #if REFLECTION
-        i2 =  PI - i1;
+        i2 = PI - i1;
 #else
         return;
 #endif
@@ -257,7 +278,12 @@ void Block::RegisterNewRay(LightRay *inRay, Intersection &inter)
 
     long oid = inter.dioptre->id;
 
-    auto ray = new LightRay(inRay->light, inter.point, Vector2Angle({1, 0}, dir), inRay->iteration + 1, oid);
+    float angle = Vector2Angle({1, 0}, dir);
+    auto ray = new LightRay(inRay->light, Vector2{
+                                              inter.point.x + cos(-angle) * 0.01f,
+                                              inter.point.y - sin(-angle) * 0.01f,
+                                          },
+                            angle, inRay->iteration + 1, oid);
 
     ray->update();
     ray->draw();
